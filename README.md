@@ -1,6 +1,6 @@
 # California_COVID-19_Dashboard [Work in Progress]
 
-T-SQL and Power Query were extensively utilized in data cleansing and data transformation to produce finalized datasets needed for the Tableau dashboard.  
+T-SQL and Power Query were extensively utilized in data cleansing and data transformation to produce finalized datasets needed for the Tableau dashboard.  To view these SQL queries, please see the VSCode_query_covid19_ca.sql file.
 
 All raw data sources were pulled from the following:
 
