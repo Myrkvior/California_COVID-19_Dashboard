@@ -444,7 +444,8 @@ SELECT
     cdt.total_tests, 
     cdt.cumulative_total_tests, 
     cdt.positive_tests, 
-    cdt.cumulative_positive_tests
+    cdt.cumulative_positive_tests,
+    cp.county_population_2020
 FROM covid19_cases_deaths_tests cdt
 LEFT JOIN CTE_county_populations cp ON cdt.area = cp.area 
 WHERE 
