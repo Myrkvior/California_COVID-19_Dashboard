@@ -13,3 +13,5 @@ All raw data sources were pulled from the following:
   * [Statewide COVID-19 Hospital County Data](https://data.ca.gov/dataset/covid-19-hospital-data1)
 * California Department of Finance
   * [P-3 Race/Ethnicity and Sex By Age for California and Counties](https://dof.ca.gov/forecasting/demographics/projections/)
+* United States Census Bureau
+  * [Counties, 1:500,000 (National) Shapefile](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.2020.html)
