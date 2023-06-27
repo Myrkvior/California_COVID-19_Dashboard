@@ -10,6 +10,10 @@
 -- importing, cleaning, and transformation using Power Query, summations of county populations for 2020 from the data table were cross verified against another dataset provided 
 -- by the department, P-2A Total Population for California and Counties.  The total rows and top 5 rows were checked against original source as well for data table creation integrity.
 
+-- Population columns provided on the datasets from CA Department of Public Health were not utilized for this analysis since there were slight discrepancies found between their values and
+-- and their stated original data source, 2020 population projections by CA State Department of Finance.  Original data source from CA State Department of Finance will be used for 
+-- this analysis.    
+
 
 -- COVID19 Variants: To assess variants and their monthly distributions, need to perform a summation of sequenced specimens and group by variant_name, month, year for California.  
 -- Saved output as new .csv file, covid19_variants_aggregation.  
@@ -147,7 +151,7 @@ WHERE california_flag IS NULL AND county IN('Unknown', 'Outside California')
 SELECT * FROM covid19_vaccines_by_county
 WHERE california_flag IS NULL AND county NOT IN ('Unknown', 'Outside California')
 
-Checking for duplicate records in original dataset, covid19_vaccines_by_county. No duplicate records found.
+-- Checking for duplicate records in original dataset, covid19_vaccines_by_county. No duplicate records found.
 
 SELECT county, administered_date, COUNT(*) AS duplicate_records
 FROM covid19_vaccines_by_county
@@ -377,7 +381,8 @@ HAVING COUNT(*) > 1
 
 
 -- CA COVID-19 Cases, Deaths, Tests:  To assess COVID-19 cases, deaths, and tests on a state-wide level, two cleaned datasets 
--- need to be generated, one as a time series and the other showing latest records for cumulative reported values.
+-- need to be generated, one as a time series and the other showing latest records for cumulative reported values.  County population values from another
+-- dataset will need to be merged into the time series dataset as well.
 
 -- Checking for NULL values in original dataset, covid19_cases_deaths_tests.
 -- Total of 2564 rows affected (74603 rows in original dataset).  2446 rows have area='Out of state','Unknown'. 
@@ -423,21 +428,38 @@ ORDER BY cdt.date DESC
 
 -- Saved output as new .csv file, covid19_cases_deaths_tests_timeseries.
 
-SELECT * FROM covid19_cases_deaths_tests
+WITH CTE_county_populations AS
+    (SELECT area, SUM(population_2020) AS county_population_2020
+    FROM p3_california_and_counties_v2
+    GROUP BY area)
+
+SELECT 
+    cdt.date, 
+    cdt.area, 
+    cdt.area_type, 
+    cdt.cases, 
+    cdt.cumulative_cases, 
+    cdt.deaths, 
+    cdt.cumulative_deaths, 
+    cdt.total_tests, 
+    cdt.cumulative_total_tests, 
+    cdt.positive_tests, 
+    cdt.cumulative_positive_tests
+FROM covid19_cases_deaths_tests cdt
+LEFT JOIN CTE_county_populations cp ON cdt.area = cp.area 
 WHERE 
-    area NOT IN('Out of state','Unknown') AND
-    date IS NOT NULL AND 
-    area IS NOT NULL AND  
-    area_type IS NOT NULL AND
-    population IS NOT NULL AND
-    cases IS NOT NULL AND
-    cumulative_cases IS NOT NULL AND
-    deaths IS NOT NULL AND
-    cumulative_deaths IS NOT NULL AND
-    total_tests IS NOT NULL AND
-    cumulative_total_tests IS NOT NULL AND
-    positive_tests IS NOT NULL AND
-    cumulative_positive_tests IS NOT NULL
+    cdt.area NOT IN('Out of state','Unknown') AND
+    cdt.date IS NOT NULL AND 
+    cdt.area IS NOT NULL AND  
+    cdt.area_type IS NOT NULL AND
+    cdt.cases IS NOT NULL AND
+    cdt.cumulative_cases IS NOT NULL AND
+    cdt.deaths IS NOT NULL AND
+    cdt.cumulative_deaths IS NOT NULL AND
+    cdt.total_tests IS NOT NULL AND
+    cdt.cumulative_total_tests IS NOT NULL AND
+    cdt.positive_tests IS NOT NULL AND
+    cdt.cumulative_positive_tests IS NOT NULL
 
 -- Saved output as new .csv file, covid19_cases_deaths_tests_cumulative_totals.
 
